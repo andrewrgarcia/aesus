@@ -20,7 +20,6 @@ version = "0.1.0"
 dependencies = [
  "aes",
  "block-modes",
- "block-padding",
  "clap",
  "hex",
  "rand",

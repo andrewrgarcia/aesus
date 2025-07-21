@@ -6,12 +6,13 @@ authors = ["Andrew Garcia"]
 description = "A lean, secure AES-256 encryption tool with a CLI."
 license = "MIT"
 repository = "https://github.com/andrewrgarcia/aesus"
-categories = ["command-line-utilities", "cryptography"]
+readme = "README.md"                # Optional but recommended
 keywords = ["aes", "cli", "encryption", "decryption", "rust"]
+categories = ["command-line-utilities", "cryptography"]
 
 [dependencies]
-aes = "0.8"
-block-modes = "0.9"
+aes = "0.7.5"
+block-modes = "0.8.1"
 clap = { version = "4.0", features = ["derive"] }
 rand = "0.8"
 sha2 = "0.10"
