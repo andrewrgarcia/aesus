@@ -6,6 +6,7 @@ use rand::Rng;
 use sha2::{Digest, Sha256};
 use std::fs::{self, File};
 use std::io::Write;
+use rand::seq::SliceRandom;
 
 type Aes256Cbc = Cbc<Aes256, Pkcs7>;
 
@@ -78,12 +79,37 @@ enum Command {
         #[arg(long)]
         file: Option<String>,
     },
+    /// Generate a secure Diceware-style passphrase
+    Generate {
+        #[arg(long, default_value_t = 6)]
+        words: usize,
+    },
+
 }
+
+const DICEWARE_WORDS: &[&str] = &[
+    "apple", "banana", "cloud", "delta", "echo", "flame", "king", "honey", "iron", "jelly",
+    "santa", "lemon", "magic", "neon", "orbit", "pearl", "quest", "magnetic", "solar", "toast",
+    "ultra", "vapor", "whale", "acid", "pancake", "penguin", "amber", "beacon", "crane", "drift",
+    "ember", "frost", "grove", "hazel", "icicle", "jungle", "karma", "lunar", "mango", "nova",
+    "oxide", "petal", "quartz", "raven", "torch", "hail", "unity", "ice", "moon", "xerox",
+    "nightcore", "hangar", "prophet", "blaze", "absinthe", "hole", "ember", "forge", "black", "halo",
+];
+
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
 
     match cli.command {
+        Command::Generate { words } => {
+            let mut rng = rand::thread_rng();
+            let passphrase: Vec<_> = (0..words)
+                .map(|_| *DICEWARE_WORDS.choose(&mut rng).unwrap())
+                .collect();
+            let joined = passphrase.join("-");
+            println!("Generated passphrase:\n{}", joined);
+        }
+
         Command::Encrypt { message, key, file } => {
             let key = key.trim();
 
