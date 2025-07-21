@@ -1,0 +1,12 @@
+[package]
+name = "aesus"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+aes = "0.7.5"              
+block-modes = "0.8.1"
+block-padding = "0.2"
+sha2 = "0.10"
+rand = "0.8"
+hex = "0.4"
