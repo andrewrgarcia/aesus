@@ -86,9 +86,9 @@ Strong. Memorable. Weirdly poetic.
 
 ## 🛠 Roadmap
 
-* \[✓] CLI using `clap` — built with clean flags and minimal ceremony
-* \[✓] File encryption/decryption — lock up your data with confidence
-* \[✓] Diceware-style passphrase generator — passwords that sound like spells
+* [x] CLI using `clap` — built with clean flags and minimal ceremony
+* [x] File encryption/decryption — lock up your data with confidence
+* [x] Diceware-style passphrase generator — passwords that sound like spells
 * [ ] `.aesus` config and secret storage — coming soon for local persistence
 * [ ] Cross-platform builds — Windows deserves privacy too, apparently
 * [ ] GUI web companion — for those who click before they type
