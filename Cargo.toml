@@ -4,7 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-aes = "0.7.5"              
+aes = "0.7.5" 
+clap = { version = "4.5", features = ["derive"] }
 block-modes = "0.8.1"
 block-padding = "0.2"
 sha2 = "0.10"
