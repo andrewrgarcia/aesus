@@ -11,33 +11,41 @@ It’s built for privacy nerds, terminal romantics, and anyone who prefers encry
 
 ---
 
-### 🌐 Try the Web Version (GUI)
+### 🌐 AESus Web App (Lite Version)
 
-**Need to lock it down without touching a terminal?**
-👉 [Use AESus on the Web (Vercel)](https://aesus.vercel.app)
+Want to encrypt messages in style, right from your browser?
+
+👉 [aesus.vercel.app](https://aesus.vercel.app)
+
+> ⚠️ **Note**: The web version uses simplified encryption (AES-256-CBC with SHA-256 derived key).
+> For **stronger, authenticated encryption** (AES-256-GCM + PBKDF2 + salt + nonce), use the [Rust CLI version](https://crates.io/crates/aesus).
+
+Perfect for casual message locking or secret note passing.
+Not recommended for storing the nuclear codes.
 
 ---
 
 ## ✨ Features
 
-- 🔑 Word-based passphrases → SHA-256 → AES-256 key (easy to remember, hard to brute force)
-- 🔐 AES-256-CBC encryption/decryption with IV embedding
-- 📁 File encryption/decryption support with `.aesus` extension
-- 🎲 Diceware-style passphrase generator
-- ⚙️ Clean and simple CLI built with [`clap`](https://docs.rs/clap)
-- 🦀 Fast, safe, zero-bullshit Rust implementation
+* 🔑 **Memorable passphrases** → PBKDF2-HMAC-SHA256 → AES-256-GCM key
+* 🔐 **AES-256-GCM** with random salt + nonce, versioned output
+* 📁 File encryption/decryption with optional `--out` override
+* 🧪 Message encryption with embedded salt + nonce (prints hex blob)
+* 🎲 Diceware-style passphrase generator
+* ⚙️ Clean and modern CLI built with [`clap`](https://docs.rs/clap)
+* 🦀 Fast, safe, zero-bullshit Rust implementation
 
 ---
 
-## 📦 Usage
+## 📦 Installation
 
-### ✅ Install (locally)
+### Install locally from source:
 
 ```bash
 cargo install --path .
-````
+```
 
-Or install globally from crates.io (after publishing):
+### 📡 Or globally (once published):
 
 ```bash
 cargo install aesus
@@ -45,81 +53,100 @@ cargo install aesus
 
 ---
 
-### 🔐 Encrypt a message:
+## 🔐 Examples
+
+### Encrypt a message:
 
 ```bash
 aesus encrypt "Confess nothing" --key scythe-raven-lemon-halo
 ```
 
-### 🔓 Decrypt a hex blob:
+Returns an encrypted hex blob (salt + nonce + ciphertext), ready to share or stash.
+
+---
+
+### Decrypt a hex blob:
 
 ```bash
-aesus decrypt --hex 9bc6f1bed445025faf5521d3240248cf4c95378d695f2a1d100735585f46509d --key scythe-raven-lemon-halo 
+aesus decrypt --hex 01abcd... --key scythe-raven-lemon-halo
 ```
 
 ---
 
-### 📁 Encrypt a file:
+### Encrypt a file:
 
 ```bash
 aesus encrypt --file secret.txt --key pancake-prophet-echo-oxide
 ```
 
 Creates: `secret.txt.aesus`
-
-### 📂 Decrypt a file:
+Or use `--out` to choose your own destiny:
 
 ```bash
-aesus decrypt --file secret.txt.aesus --key pancake-prophet-echo-oxide 
+aesus encrypt --file secret.txt --key ... --out recipe.sealed
 ```
 
 ---
 
-### 🎲 Generate a passphrase:
+### Decrypt a file:
+
+```bash
+aesus decrypt --file secret.txt.aesus --key pancake-prophet-echo-oxide
+```
+
+Or save the result under any name:
+
+```bash
+aesus decrypt --file recipe.sealed --key ... --out final-form.txt
+```
+
+---
+
+### Generate a passphrase:
 
 ```bash
 aesus generate --words 6
 ```
 
-Example output:
+Output:
 
 ```
 quest-ember-black-icicle-neon-crane
 ```
 
-Strong. Memorable. Weirdly poetic.
+Memorable, weird, and more secure than `hunter2`.
 
 ---
 
 ## 🛠 Roadmap
 
-* [x] CLI using `clap` — built with clean flags and minimal ceremony
-* [x] File encryption/decryption — lock up your data with confidence
-* [x] Diceware-style passphrase generator — passwords that sound like spells
-* [ ] `.aesus` config and secret storage — coming soon for local persistence
+* [x] AES-GCM encryption with versioned format
+* [x] `--out` flag for flexible output paths
+* [x] Per-file random salt and nonce
+* [x] Diceware-style passphrase generator
+* [ ] Config and vault-like features
 * [ ] Cross-platform builds — Windows deserves privacy too, apparently
-* [ ] GUI web companion — for those who click before they type
+* [ ] GUI enhancements & WebAuthn/biometrics (maybe)
 * [ ] Whispered Latin chants on success — a joke... unless?
 
 ---
 
 ## 📜 Disclaimer
 
-AESus is not divine. It won’t protect you from forgetting your passphrase or encrypting the wrong file.
-It does one thing well: turning words into keys, and data into secrets.
+AESus is **not** divine.
+It won’t recover your passphrase or stop you from encrypting your taxes as `pancake.jeff`.
 
-Use responsibly. Backup often. Don’t test AES with your only copy of anything.
+Use responsibly. Backup your data. Don’t test encryption tools with your only copy of anything, unless you like pain.
 
 ---
 
 ## 🩸 License
 
-MIT. Free as in open source, and as in “open to unusual use cases.”
+MIT. Free as in freedom, and as in “free to use for your cursed backup rituals.”
 
 ---
 
 ## 🕳️ Contact
 
 Made by [Andrew Garcia](https://github.com/andrewrgarcia)
-Bug reports welcome. Feedback encouraged. Incantations optional.
-
+Open to feedback, PRs, bug reports, or cryptic fanmail.
