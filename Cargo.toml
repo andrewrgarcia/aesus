@@ -3,10 +3,10 @@ name = "aesus"
 version = "0.2.0"
 edition = "2021"
 authors = ["Andrew Garcia"]
-description = "A lean, secure AES-256 encryption tool with a CLI."
+description = "CLI for AES-256-GCM encryption using memorable passphrases"
 license = "MIT"
 repository = "https://github.com/andrewrgarcia/aesus"
-readme = "README.md"                # Optional but recommended
+readme = "README.md"
 keywords = ["aes", "cli", "encryption", "decryption", "rust"]
 categories = ["command-line-utilities", "cryptography"]
 
