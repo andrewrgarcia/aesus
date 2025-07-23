@@ -1,6 +1,6 @@
 [package]
 name = "aesus"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 authors = ["Andrew Garcia"]
 description = "A lean, secure AES-256 encryption tool with a CLI."

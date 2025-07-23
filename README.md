@@ -11,6 +11,13 @@ It’s built for privacy nerds, terminal romantics, and anyone who prefers encry
 
 ---
 
+### 🌐 Try the Web Version (GUI)
+
+**Need to lock it down without touching a terminal?**
+👉 [Use AESus on the Web (Vercel)](https://aesus.vercel.app)
+
+---
+
 ## ✨ Features
 
 - 🔑 Word-based passphrases → SHA-256 → AES-256 key (easy to remember, hard to brute force)
@@ -41,13 +48,13 @@ cargo install aesus
 ### 🔐 Encrypt a message:
 
 ```bash
-aesus encrypt --key "scythe-raven-lemon-halo" "Confess nothing"
+aesus encrypt "Confess nothing" --key scythe-raven-lemon-halo
 ```
 
 ### 🔓 Decrypt a hex blob:
 
 ```bash
-aesus decrypt --key "scythe-raven-lemon-halo" --hex "1a221634c2c8bd5fe99325ffd320acba" --iv "529ded313a437c067d29893ec4772195"
+aesus decrypt --hex 9bc6f1bed445025faf5521d3240248cf4c95378d695f2a1d100735585f46509d --key scythe-raven-lemon-halo 
 ```
 
 ---
@@ -55,7 +62,7 @@ aesus decrypt --key "scythe-raven-lemon-halo" --hex "1a221634c2c8bd5fe99325ffd32
 ### 📁 Encrypt a file:
 
 ```bash
-aesus encrypt --key "pancake-prophet-echo-oxide" --file secret.txt
+aesus encrypt --file secret.txt --key pancake-prophet-echo-oxide
 ```
 
 Creates: `secret.txt.aesus`
@@ -63,7 +70,7 @@ Creates: `secret.txt.aesus`
 ### 📂 Decrypt a file:
 
 ```bash
-aesus decrypt --key "pancake-prophet-echo-oxide" --file secret.txt.aesus
+aesus decrypt --file secret.txt.aesus --key pancake-prophet-echo-oxide 
 ```
 
 ---
@@ -77,7 +84,7 @@ aesus generate --words 6
 Example output:
 
 ```
-nightcore-jungle-toast-absinthe-flame-honey
+quest-ember-black-icicle-neon-crane
 ```
 
 Strong. Memorable. Weirdly poetic.

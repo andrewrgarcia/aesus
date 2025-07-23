@@ -110,8 +110,28 @@ but you (and your future self who forgot the passphrase) can read them.
 🕯️ Fear the corrupted file.
 🕯️ Encrypt with style. Decrypt with repentance.
 
+⚙️ Usage Examples ⚙️
 
-                  THE DEMON AWAKENS:
+# Encrypt a string
+$ aesus encrypt "hello world" --key banana-toast-orbit
+
+# Decrypt a hex-encoded string
+$ aesus decrypt --hex 6654259...27d4de40c --key banana-toast-orbit
+
+
+# Encrypt a file
+$ aesus encrypt --file ./secret.txt --key lemon-magic-vapor
+
+# Decrypt a file
+$ aesus decrypt --file ./secret.txt.aesus --key lemon-magic-vapor
+
+# Generate a Diceware passphrase
+$ aesus generate --words 7
+
+# View the abyss (About message)
+$ aesus about
+
+👹 THE DEMON AWAKENS:
 
 ⠀⢾⣶⡀⠺⣷⡄⠀⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡾⠃⠀⠀⠀⠀⠀⠀⠀⠀⠸⣿⡏⠀⠀⠀⠀⠀⠀⠀⠀⠘⢷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡀⢠⣾⠾⠀⣴⠦⠀
 ⣦⠈⠻⠿⢿⣮⠇⡼⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⣆⠀⠀⠀⠀⠀⠀⠀⠰⡆⠀⠀⢧⠘⣣⣖⠼⠿⠃⣰
@@ -209,7 +229,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 println!("Encrypted (IV + ciphertext) hex:\n{}", hex::encode(&encrypted));
 
                 println!(
-                    "\nTo decrypt, run:\ncargo run -- decrypt --hex {} --key \"{}\"",
+                    "\nTo decrypt, run:\naesus decrypt --hex {} --key {}",
                     hex::encode(&encrypted),
                     key
                 );
