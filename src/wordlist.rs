@@ -1,8 +1,16 @@
-pub const DICEWARE_WORDS: &[&str] = &[
-    "apple", "banana", "cloud", "delta", "echo", "flame", "king", "honey", "iron", "jelly",
-    "santa", "lemon", "magic", "neon", "orbit", "pearl", "quest", "magnetic", "solar", "toast",
-    "ultra", "vapor", "whale", "acid", "pancake", "penguin", "amber", "beacon", "crane", "drift",
-    "ember", "frost", "grove", "hazel", "icicle", "jungle", "karma", "lunar", "mango", "nova",
-    "oxide", "petal", "quartz", "raven", "torch", "hail", "unity", "ice", "moon", "xerox",
-    "nightcore", "hangar", "prophet", "blaze", "absinthe", "hole", "ember", "forge", "black", "halo",
-];
+use std::sync::OnceLock;
+
+static WORDS: OnceLock<Vec<&'static str>> = OnceLock::new();
+
+fn load_words() -> Vec<&'static str> {
+
+    include_str!("diceware.txt")
+        .lines()
+        .filter(|l| !l.trim().is_empty())
+        .collect()
+}
+
+pub fn get_words() -> &'static Vec<&'static str> {
+
+    WORDS.get_or_init(load_words)
+}
