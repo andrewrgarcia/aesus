@@ -1,156 +1,22 @@
 mod about;
 mod wordlist;
 
-use aes_gcm::{Aes256Gcm, KeyInit, aead::{Aead, generic_array::GenericArray}};
+use aesus::{
+    encrypt_bytes,
+    decrypt_bytes,
+    CipherBlob,
+    SALT_LEN,
+    NONCE_LEN
+};
+
 use clap::{Parser, Subcommand};
-use rand::{RngCore, rngs::OsRng as RandOsRng, seq::SliceRandom};
-use pbkdf2::pbkdf2;
-use hmac::Hmac;
-use sha2::Sha256;
-use argon2::{Argon2, Params};
-use zeroize::Zeroize;
+use rand::seq::SliceRandom;
 
 use std::fs::{self, File};
-use std::io::{Write};
+use std::io::Write;
 
 use about::DEMON_ABOUT;
 use wordlist::get_words;
-
-/* ------------------------------- */
-/* Constants */
-/* ------------------------------- */
-
-const VERSION: u8 = 2;
-
-const SALT_LEN: usize = 16;
-const NONCE_LEN: usize = 12;
-
-const PBKDF2_ITERS: u32 = 100_000;
-
-/* ------------------------------- */
-/* KDF */
-/* ------------------------------- */
-
-fn derive_key_pbkdf2(passphrase: &str, salt: &[u8]) -> [u8; 32] {
-
-    let mut key = [0u8; 32];
-
-    pbkdf2::<Hmac<Sha256>>(
-        passphrase.as_bytes(),
-        salt,
-        PBKDF2_ITERS,
-        &mut key
-    );
-
-    key
-}
-
-fn derive_key_argon2(passphrase: &str, salt: &[u8]) -> [u8; 32] {
-
-    let params = Params::new(
-        128 * 1024, // 128 MB memory
-        3,         // iterations
-        1,         // parallelism
-        Some(32)
-    ).unwrap();
-
-    let argon2 = Argon2::new(
-        argon2::Algorithm::Argon2id,
-        argon2::Version::V0x13,
-        params
-    );
-
-    let mut key = [0u8; 32];
-
-    argon2.hash_password_into(
-        passphrase.as_bytes(),
-        salt,
-        &mut key
-    ).unwrap();
-
-    key
-}
-
-/* ------------------------------- */
-/* Encryption */
-/* ------------------------------- */
-
-fn encrypt_bytes(plaintext: &[u8], passphrase: &str) -> Result<Vec<u8>, String> {
-
-    let mut salt = [0u8; SALT_LEN];
-    RandOsRng.fill_bytes(&mut salt);
-
-    let mut key = derive_key_argon2(passphrase, &salt);
-
-    let cipher = Aes256Gcm::new_from_slice(&key)
-        .map_err(|e| e.to_string())?;
-
-    key.zeroize();
-
-    let mut nonce = [0u8; NONCE_LEN];
-    RandOsRng.fill_bytes(&mut nonce);
-
-    let ciphertext = cipher.encrypt(
-        GenericArray::from_slice(&nonce),
-        plaintext
-    ).map_err(|e| format!("Encryption failed: {e}"))?;
-
-    let mut output =
-        Vec::with_capacity(
-            1 + SALT_LEN + NONCE_LEN + ciphertext.len()
-        );
-
-    output.push(VERSION);
-    output.extend_from_slice(&salt);
-    output.extend_from_slice(&nonce);
-    output.extend_from_slice(&ciphertext);
-
-    Ok(output)
-}
-
-/* ------------------------------- */
-/* Decryption */
-/* ------------------------------- */
-
-fn decrypt_bytes(data: &[u8], passphrase: &str) -> Result<Vec<u8>, String> {
-
-    if data.len() < 1 + SALT_LEN + NONCE_LEN {
-        return Err("Ciphertext too short.".into());
-    }
-
-    let version = data[0];
-
-    let salt =
-        &data[1..1 + SALT_LEN];
-
-    let nonce =
-        &data[1 + SALT_LEN..1 + SALT_LEN + NONCE_LEN];
-
-    let ciphertext =
-        &data[1 + SALT_LEN + NONCE_LEN..];
-
-    let mut key = match version {
-
-        1 => derive_key_pbkdf2(passphrase, salt),
-
-        2 => derive_key_argon2(passphrase, salt),
-
-        _ => return Err(format!(
-            "Unsupported version: {}",
-            version
-        ))
-    };
-
-    let cipher = Aes256Gcm::new_from_slice(&key)
-        .map_err(|e| e.to_string())?;
-
-    key.zeroize();
-
-    cipher.decrypt(
-        GenericArray::from_slice(nonce),
-        ciphertext
-    ).map_err(|_| "Decryption failed: invalid key or corrupted data.".into())
-}
 
 /* ------------------------------- */
 /* CLI */
@@ -159,12 +25,11 @@ fn decrypt_bytes(data: &[u8], passphrase: &str) -> Result<Vec<u8>, String> {
 #[derive(Parser)]
 #[command(
     name = "AESus",
-    version = "0.3",
+    version = env!("CARGO_PKG_VERSION"),
     author = "Andrew Garcia",
     about = "CLI for AES-256-GCM encryption"
 )]
 struct Cli {
-
     #[command(subcommand)]
     command: Command
 }
@@ -233,8 +98,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 .map(|_| *wordlist.choose(&mut rng).unwrap())
                 .collect();
 
-            let joined =
-                passphrase.join("-");
+            let joined = passphrase.join("-");
 
             println!("\nGenerated passphrase:\n{}\n", joined);
 
@@ -281,9 +145,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     "Encrypted hex:\n{}\n",
                     hexstr
                 );
-            }
-            else {
-                return Err("Provide either a message or --file".into());
+
+            } else {
+
+                return Err(
+                    "Provide either a message or --file".into()
+                );
             }
         }
 
@@ -324,16 +191,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
                 match std::str::from_utf8(&decrypted) {
 
-                    Ok(text) => println!("{}", text),
+                    Ok(text) =>
+                        println!("{}", text),
 
                     Err(_) =>
                         println!(
                             "Binary output. Use --file to save."
                         )
                 }
-            }
-            else {
-                return Err("Provide either --hex or --file".into());
+
+            } else {
+
+                return Err(
+                    "Provide either --hex or --file".into()
+                );
             }
         }
 
@@ -343,16 +214,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
             if data.len() < 1 + SALT_LEN + NONCE_LEN {
                 println!("Invalid AESus file");
-                return Ok(())
+                return Ok(());
             }
 
-            let version = data[0];
+            let blob =
+                CipherBlob::from_bytes(&data)?;
 
             println!("\nAESus file info\n");
 
-            println!("version: {}", version);
+            println!("version: {}", blob.version);
 
-            match version {
+            match blob.version {
                 1 => println!("kdf: PBKDF2-SHA256"),
                 2 => {
                     println!("kdf: Argon2id");
@@ -365,7 +237,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             println!("cipher: AES-256-GCM");
             println!("salt length: {}", SALT_LEN);
             println!("nonce length: {}", NONCE_LEN);
-        },
+        }
 
         Command::About =>
             println!("{}", DEMON_ABOUT)

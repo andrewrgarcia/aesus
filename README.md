@@ -1,7 +1,6 @@
 <!-- LOGO -->
 <p align="center">
   <img width="240" height="240" alt="logo2" src="https://github.com/user-attachments/assets/3eb4f6f6-15e2-45d6-a1ef-e9ac13967f3a" />
-
 </p>
 
 <h1 align="center">AESus</h1>
@@ -17,77 +16,114 @@
 
 ---
 
-# 🧿 What is AESus?
+# What is AESus?
 
-**AESus** is a lean, word-based AES-256 encryption tool written in Rust, with just a hint of divine mischief.
+**AESus** is a lean AES-256 encryption tool written in Rust with just a hint of divine mischief.
 
-It converts **memorable Diceware passphrases** into strong cryptographic keys using modern password hardening, allowing you to encrypt files or messages without juggling random keyfiles or 32-character gibberish.
+It converts **memorable Diceware passphrases** into hardened cryptographic keys and allows you to encrypt files or messages without juggling random keyfiles or 32-character gibberish.
+
+AESus is both:
+
+* 🔐 a **command-line encryption tool**
+* 🦀 a **reusable Rust encryption library**
 
 Built for:
 
 - privacy nerds  
 - terminal romantics  
-- people who think encryption tools should have personality
+- developers who prefer encryption tools with personality
 
 ---
 
-## 🔐 Cryptography
+# Cryptography
 
 AESus uses modern authenticated encryption.
 
 ```
-
 Passphrase
 ↓
 Argon2id (salted, memory-hard)
 ↓
 AES-256-GCM
-
 ```
 
-Each encrypted file contains:
+Every encrypted output contains:
 
 ```
-
 [version][salt][nonce][ciphertext]
-
 ```
 
 Security properties:
 
 * **AES-256-GCM** authenticated encryption
-* **Argon2id** memory-hard password derivation
+* **Argon2id** memory-hard key derivation
 * Random **salt per encryption**
 * Random **nonce per encryption**
-* **Versioned format** for future upgrades
+* **Versioned format** for forward compatibility
 * Diceware passphrases (~77 bits entropy by default)
 
 ---
 
-## 🌐 AESus Web App (Lite Version)
+# Using AESus as a Rust Library
 
-Want to encrypt messages in style, right from your browser?
+AESus can also be used directly from Rust.
 
-👉 https://aesus.vercel.app
+Add to `Cargo.toml`:
+
+```toml
+aesus = "0.3"
+```
+
+Example:
+
+```rust
+use aesus::{encrypt, decrypt, CipherBlob};
+
+let plaintext = b"hello world";
+let passphrase = "raven-lamp-oxide-lotus";
+
+let blob = encrypt(plaintext, passphrase)?;
+
+let bytes = blob.to_bytes();
+
+/* store bytes somewhere */
+
+let parsed = CipherBlob::from_bytes(&bytes)?;
+
+let decrypted = decrypt(&parsed, passphrase)?;
+```
+
+This allows other tools to use AESus as a cryptographic engine without calling the CLI.
+
+Example ecosystem project:
+
+• **FUR** — encrypted conversation manager *(planned integration)*  
+https://crates.io/crates/fur-cli
+
+---
+
+# AESus Web App (Lite Version)
+
+Want to encrypt messages directly in your browser?
+
+👉 [https://aesus.vercel.app](https://aesus.vercel.app)
 
 ⚠️ **Note**
 
-The web version uses simplified encryption.
+The web version uses simplified encryption:
 
 ```
-
 AES-256-CBC + SHA-256 key derivation
-
-````
+```
 
 For **strong authenticated encryption** (Argon2id + AES-GCM), use the **Rust CLI**.
 
-Perfect for casual message locking or secret note passing.  
+Perfect for casual message locking or secret note passing.
 Not recommended for storing the nuclear codes.
 
 ---
 
-# ✨ Features
+# Features
 
 * 🔑 **Memorable passphrases** (Diceware)
 * 🔐 **AES-256-GCM authenticated encryption**
@@ -96,8 +132,8 @@ Not recommended for storing the nuclear codes.
 * 🧪 Message encryption (hex output)
 * 🎲 Diceware passphrase generator
 * 🔍 `inspect` command for ciphertext metadata
+* 🦀 Usable as both **CLI and Rust library**
 * ⚙️ Clean CLI powered by [`clap`](https://docs.rs/clap)
-* 🦀 Fast, safe Rust implementation
 
 ---
 
@@ -107,7 +143,7 @@ Not recommended for storing the nuclear codes.
 
 ```bash
 cargo install --path .
-````
+```
 
 ### Install from crates.io
 
@@ -117,7 +153,7 @@ cargo install aesus
 
 ---
 
-# 🔐 Examples
+# Examples
 
 ## Encrypt a message
 
@@ -221,6 +257,7 @@ Memorable, weird, and significantly better than `hunter2`.
 * [x] Diceware passphrase generator
 * [x] Versioned ciphertext format
 * [x] Inspect command
+* [x] Rust library API
 * [ ] Vault-like secret storage
 * [ ] Cross-platform builds
 * [ ] Optional GUI
@@ -260,4 +297,3 @@ GitHub
 [https://github.com/andrewrgarcia](https://github.com/andrewrgarcia)
 
 PRs, bug reports, and cryptic fanmail welcome.
-
