@@ -1,22 +1,21 @@
 mod about;
-mod wordlist;
 
 use aesus::{
     encrypt_bytes,
     decrypt_bytes,
+    generate_passphrase, 
+    passphrase_entropy,
     CipherBlob,
     SALT_LEN,
     NONCE_LEN
 };
 
 use clap::{Parser, Subcommand};
-use rand::seq::SliceRandom;
 
 use std::fs::{self, File};
 use std::io::Write;
 
 use about::DEMON_ABOUT;
-use wordlist::get_words;
 
 /* ------------------------------- */
 /* CLI */
@@ -89,26 +88,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
         Command::Generate { words } => {
 
-            let mut rng = rand::thread_rng();
+            let phrase = generate_passphrase(words);
 
-            let wordlist = get_words();
-
-            let passphrase: Vec<_> =
-                (0..words)
-                .map(|_| *wordlist.choose(&mut rng).unwrap())
-                .collect();
-
-            let joined = passphrase.join("-");
-
-            println!("\nGenerated passphrase:\n{}\n", joined);
-
-            let entropy =
-                (wordlist.len() as f64).log2() *
-                words as f64;
+            println!("\nGenerated passphrase:\n{}\n", phrase);
 
             println!(
                 "Entropy ≈ {:.1} bits\n",
-                entropy
+                passphrase_entropy(words)
             );
         }
 

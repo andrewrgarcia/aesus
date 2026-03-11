@@ -1,18 +1,21 @@
-pub const DEMON_ABOUT: &str = r#"
-AESus
+pub const DEMON_ABOUT: &str = concat!(
+"AESus v", env!("CARGO_PKG_VERSION"), r#"
 
 A lean, unforgiving encryption tool forged in Rust and irony.
 
-AESus transmutes your human-readable Diceware passphrases into AES-256-CBC
-keys, embedding IVs directly in ciphertext like cursed runes. Whether you're
-encrypting files or whispering secrets into the void, AESus makes sure no one
-but you (and your future self who forgot the passphrase) can read them.
+AESus transmutes human-readable Diceware passphrases into cryptographic
+keys and seals data using AES-256-GCM. Salt, nonce, and ciphertext are
+packed into a single binary blob like cursed runes for your future self.
+
+Whether you're encrypting files or whispering secrets into the void,
+AESus ensures only the correct passphrase can bring them back.
 
 ☠️ Features ☠️
-- Word-based AES key derivation via SHA-256
-- Secure random IV generation
-- File encryption/decryption with `.aesus` suffix
+- Argon2id key derivation (128MB memory, 3 iterations)
+- AES-256-GCM authenticated encryption
+- Secure random salt and nonce generation
 - Diceware-style passphrase generation
+- File encryption/decryption with `.aesus` suffix
 - Absolutely zero forgiveness
 
 🕯️ Remember your passphrase.
@@ -22,24 +25,36 @@ but you (and your future self who forgot the passphrase) can read them.
 ⚙️ Usage Examples ⚙️
 
 # Encrypt a string
-$ aesus encrypt "hello world" --key banana-toast-orbit
+$ aesus encrypt "hello world" \
+  --key orbit-lunar-toast-vapor-cactus-dynamo
 
 # Decrypt a hex-encoded string
-$ aesus decrypt --hex 6654259...27d4de40c --key banana-toast-orbit
+$ aesus decrypt \
+  --hex 6654259...27d4de40c \
+  --key orbit-lunar-toast-vapor-cactus-dynamo
 
 # Encrypt a file
-$ aesus encrypt --file ./secret.txt --key lemon-magic-vapor
+$ aesus encrypt \
+  --file ./secret.txt \
+  --key lemon-magic-vapor-cactus-dynamo-forest
 
 # Decrypt a file
-$ aesus decrypt --file ./secret.txt.aesus --key lemon-magic-vapor
+$ aesus decrypt \
+  --file ./secret.txt.aesus \
+  --key lemon-magic-vapor-cactus-dynamo-forest
 
 # Generate a Diceware passphrase
 $ aesus generate --words 7
 
-# View the abyss (About message)
+⚠️ Security note:
+Use at least 6 Diceware words (≈77 bits entropy).
+Shorter passphrases may be vulnerable to offline cracking.
+
+# View the abyss
 $ aesus about
 
 👹 THE DEMON AWAKENS:
+
 
 ⠀⢾⣶⡀⠺⣷⡄⠀⡆⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢀⡾⠃⠀⠀⠀⠀⠀⠀⠀⠀⠸⣿⡏⠀⠀⠀⠀⠀⠀⠀⠀⠘⢷⣄⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⢠⡀⢠⣾⠾⠀⣴⠦⠀
 ⣦⠈⠻⠿⢿⣮⠇⡼⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣰⠏⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⣟⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠀⠙⣆⠀⠀⠀⠀⠀⠀⠀⠰⡆⠀⠀⢧⠘⣣⣖⠼⠿⠃⣰
@@ -90,7 +105,6 @@ $ aesus about
 ⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣾⣿⣿⣿⣶⣤⣄⡀⠈⢛⢿⣿⠟⠋⣀⣀⣤⣴⣾⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿⣿
 
 
-AESus v0.1.0 — The encryption tool that saw the void and hashed it.
-
 Encrypt responsibly. Or don't. I'm not your priest.
-"#;
+"#
+);

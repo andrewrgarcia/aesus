@@ -1,3 +1,5 @@
+pub mod wordlist;
+
 use aes_gcm::{Aes256Gcm, KeyInit, aead::{Aead, generic_array::GenericArray}};
 use rand::{RngCore, rngs::OsRng};
 use pbkdf2::pbkdf2;
@@ -5,65 +7,14 @@ use hmac::Hmac;
 use sha2::Sha256;
 use argon2::{Argon2, Params};
 use zeroize::Zeroize;
-
-/* ------------------------------- */
-/* Constants */
-/* ------------------------------- */
+use rand::seq::SliceRandom;
+use rand::thread_rng;
 
 pub const VERSION: u8 = 2;
-
 pub const SALT_LEN: usize = 16;
 pub const NONCE_LEN: usize = 12;
 
 const PBKDF2_ITERS: u32 = 100_000;
-
-/* ------------------------------- */
-/* KDF */
-/* ------------------------------- */
-
-fn derive_key_pbkdf2(passphrase: &str, salt: &[u8]) -> [u8; 32] {
-
-    let mut key = [0u8; 32];
-
-    pbkdf2::<Hmac<Sha256>>(
-        passphrase.as_bytes(),
-        salt,
-        PBKDF2_ITERS,
-        &mut key
-    );
-
-    key
-}
-
-fn derive_key_argon2(passphrase: &str, salt: &[u8]) -> [u8; 32] {
-
-    let params = Params::new(
-        128 * 1024,
-        3,
-        1,
-        Some(32)
-    ).unwrap();
-
-    let argon2 = Argon2::new(
-        argon2::Algorithm::Argon2id,
-        argon2::Version::V0x13,
-        params
-    );
-
-    let mut key = [0u8; 32];
-
-    argon2.hash_password_into(
-        passphrase.as_bytes(),
-        salt,
-        &mut key
-    ).unwrap();
-
-    key
-}
-
-/* ------------------------------- */
-/* Cipher Blob */
-/* ------------------------------- */
 
 #[derive(Debug, Clone)]
 pub struct CipherBlob {
@@ -118,6 +69,67 @@ impl CipherBlob {
     }
 }
 
+
+pub fn generate_passphrase(words: usize) -> String {
+
+    let mut rng = thread_rng();
+
+    let wordlist = crate::wordlist::get_words();
+
+    let passphrase: Vec<_> =
+        (0..words)
+        .map(|_| *wordlist.choose(&mut rng).unwrap())
+        .collect();
+
+    passphrase.join("-")
+}
+
+pub fn passphrase_entropy(words: usize) -> f64 {
+
+    let wordlist = crate::wordlist::get_words();
+
+    (wordlist.len() as f64).log2() * words as f64
+}
+
+fn derive_key_pbkdf2(passphrase: &str, salt: &[u8]) -> [u8; 32] {
+
+    let mut key = [0u8; 32];
+
+    pbkdf2::<Hmac<Sha256>>(
+        passphrase.as_bytes(),
+        salt,
+        PBKDF2_ITERS,
+        &mut key
+    );
+
+    key
+}
+
+fn derive_key_argon2(passphrase: &str, salt: &[u8]) -> [u8; 32] {
+
+    let params = Params::new(
+        128 * 1024,
+        3,
+        1,
+        Some(32)
+    ).unwrap();
+
+    let argon2 = Argon2::new(
+        argon2::Algorithm::Argon2id,
+        argon2::Version::V0x13,
+        params
+    );
+
+    let mut key = [0u8; 32];
+
+    argon2.hash_password_into(
+        passphrase.as_bytes(),
+        salt,
+        &mut key
+    ).unwrap();
+
+    key
+}
 
 /* ------------------------------- */
 /* Encryption */
