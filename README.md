@@ -1,6 +1,6 @@
 <!-- LOGO -->
 <p align="center">
-  <img width="240" height="240" alt="logo2" src="https://github.com/user-attachments/assets/3eb4f6f6-15e2-45d6-a1ef-e9ac13967f3a" />
+  <img width="240" height="240" alt="logo2" src="logo.png" />
 </p>
 
 <h1 align="center">AESus</h1>
@@ -64,41 +64,74 @@ Security properties:
 
 ---
 
+
 # Using AESus as a Rust Library
 
-AESus can also be used directly from Rust.
+AESus can also be used directly as a Rust library.
 
-Add to `Cargo.toml`:
+Add to your `Cargo.toml`:
 
 ```toml
-aesus = "0.3"
+aesus = "0.4"
 ```
 
 Example:
 
 ```rust
-use aesus::{encrypt, decrypt, CipherBlob};
+use aesus::{
+    encrypt,
+    decrypt,
+    CipherBlob,
+    generate_passphrase
+};
 
-let plaintext = b"hello world";
-let passphrase = "raven-lamp-oxide-lotus";
+fn main() -> Result<(), Box<dyn std::error::Error>> {
 
-let blob = encrypt(plaintext, passphrase)?;
+    let plaintext = b"hello world";
 
-let bytes = blob.to_bytes();
+    /* generate a secure Diceware passphrase */
 
-/* store bytes somewhere */
+    let passphrase = generate_passphrase(6);
 
-let parsed = CipherBlob::from_bytes(&bytes)?;
+    /* encrypt */
 
-let decrypted = decrypt(&parsed, passphrase)?;
+    let blob = encrypt(plaintext, &passphrase)?;
+
+    let bytes = blob.to_bytes();
+
+    /* store bytes somewhere */
+
+    /* later */
+
+    let parsed = CipherBlob::from_bytes(&bytes)?;
+
+    let decrypted = decrypt(&parsed, &passphrase)?;
+
+    println!("{}", std::str::from_utf8(&decrypted)?);
+
+    Ok(())
+}
 ```
 
-This allows other tools to use AESus as a cryptographic engine without calling the CLI.
+AESus provides:
 
-Example ecosystem project:
+* **Argon2id key derivation**
+* **AES-256-GCM authenticated encryption**
+* automatic **salt + nonce management**
 
-• **FUR** — encrypted conversation manager *(planned integration)*  
-https://crates.io/crates/fur-cli
+The resulting `CipherBlob` contains everything needed to decrypt except the passphrase.
+The `CipherBlob` format is stable and self-describing, allowing encrypted
+data to be safely stored or transmitted.
+
+---
+
+## Example ecosystem project
+
+• **FUR** — encrypted conversation manager
+[https://crates.io/crates/fur-cli](https://crates.io/crates/fur-cli)
+
+AESus is designed so tools like **FUR** can depend on it as a cryptographic engine instead of shelling out to the CLI.
+
 
 ---
 
