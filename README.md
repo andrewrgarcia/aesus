@@ -72,7 +72,7 @@ AESus can also be used directly as a Rust library.
 Add to your `Cargo.toml`:
 
 ```toml
-aesus = "0.4"
+aesus = "0.5"
 ```
 
 Example:
