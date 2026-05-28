@@ -1,6 +1,6 @@
 <!-- LOGO -->
 <p align="center">
-  <img width="218" height="246" alt="logo" src="https://github.com/user-attachments/assets/49cfb398-480c-4015-9dd5-2e7c39dd5d63" />
+  <img width="220" alt="aesus-logo" src="https://github.com/user-attachments/assets/01d617ba-4543-42a2-a867-98f705c053f2" />
 </p>
 
 <h1 align="center">AESus</h1>
